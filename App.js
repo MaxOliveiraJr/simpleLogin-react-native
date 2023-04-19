@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   SafeAreaView,
@@ -10,21 +10,58 @@ import {
 } from 'react-native';
 
 const App = () => {
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [status, setStatus] = useState('');
+  const [showCupom, setShowCupom] = useState(false);
+
+  const handleVerifyLogin = async () => {
+    setStatus('');
+    setShowCupom(false);
+
+    const req = await fetch('https://api.b7web.com.br/loginsimples/', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    const json = await req.json();
+    if (json.status === 'ok') {
+      setStatus('Acesso LIBERADO!');
+      setShowCupom(true);
+
+    } else {
+      setStatus('Acesso NEGADO!');
+      setShowCupom(false);
+    }
+
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>Desconto UltraBlaster</Text>
       <TextInput
         style={styles.input}
-        placeholder="Digite seu e-mail"></TextInput>
+        placeholder="Digite seu e-mail"
+        value={email}
+        onChangeText={t => setEmail(t)} />
       <TextInput
         style={styles.input}
-        placeholder="Digite sua senha"></TextInput>
-      <Button title="Verificar" />
-      <Text style={styles.status}>...</Text>
-      <View style={styles.cupomArea}>
-        <Text style={styles.cupomTitle}>Código do Cupom</Text>
-        <Text style={styles.cupomCode}>JAHRK123</Text>
-      </View>
+        placeholder="Digite sua senha"
+        value={password}
+        onChangeText={p => setPassword(p)}
+        secureTextEntry={true} />
+
+      <Button title="Verificar" onPress={handleVerifyLogin} />
+      <Text style={styles.status}>{status}</Text>
+      {showCupom &&
+        <View style={styles.cupomArea}>
+          <Text style={styles.cupomTitle}>Código do Cupom</Text>
+          <Text style={styles.cupomCode}>JAHRK123</Text>
+        </View>
+      }
     </SafeAreaView>
   );
 };
